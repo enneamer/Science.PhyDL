@@ -1,4 +1,4 @@
-# Phylogeny inference using deep neural network
+# Phylogenetics by Deep Learning
 
 ## Setting up experiment environment
 

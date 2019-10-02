@@ -1,4 +1,4 @@
-# Phylogenetics by Deep Learning
+# Phylogenetics by Deep Learning (PhyDL)
 
 ## Setting up experiment environment
 

@@ -1,4 +1,4 @@
-# Phylogenetics by Deep Learning (PhyDL)
+# Phylogeny inference using deep neural network
 
 ## Setting up experiment environment
 
@@ -10,7 +10,8 @@ Here are the recommended steps to set up the experiment environment:
 3. Execute `conda activate env/` to activate the conda environment. Do
    not omit the trailing slash.
 4. Run `./setup.py develop` to install evosimz for tree simulation.
-5. Unzip data.zip at the root of the project folder.
+5. Create folders `data/trees` and `data/models` under the root folder
+   of the project.
 
 Now you can run files under the "bin" folder for experiments.
 
@@ -35,11 +36,8 @@ be placed under `data/trees`.
 Run scripts under `bin/` to train and predict. Take `bin/q10` as an
 example:
 
-`bin/dnn1.py train` lists all arguments for training. By default, it uses
-GPU for training (you should have one for training).
+`bin/q10 train` lists all arguments for training.
 
-`bin/dnn1.py predict` lists all arguments for prediction. By default, it
-uses CPU for inference. To enable GPU inference, add `--device cuda` to
-the command line.
+`bin/q10 predict` lists all arguments for prediction.
 
 Models will be saved under `data/models/<script name>`.

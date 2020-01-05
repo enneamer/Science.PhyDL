@@ -76,9 +76,13 @@ class Collator:
                                      for sequence in sequences])
         sequences = common.onehot_encode(sequences, self.sequence_type)
         sequences = torch.utils.data.dataloader.default_collate(sequences)
+        # print(sequences.size()) # torch.Size([16, 24, 4, 20, 1591])
         sequences = sequences.view(-1, *sequences.size()[2:])
+        # print(sequences.size()) # torch.Size([384, 4, 20, 1591])
         samples = torch.utils.data.dataloader.default_collate(samples)
+        # print(0, len(samples), samples[0].size(), samples[1].size()) # 2 torch.Size([16, 24, 4]) 24 length-16 tensors
         samples = [sample.view(-1, *sample.size()[2:]) if not isinstance(sample, list) else sample for sample in samples]
+        # print(1, len(samples), samples[0].size(), samples[1].size()) # 2 torch.Size([384, 4]) 24 length-16 tensors
         samples.insert(0, trees)
         samples.insert(1, sequences)
         return samples
@@ -218,13 +222,17 @@ class _QuartetMixin:
     _ORDERS = numpy.asarray(list(itertools.permutations(range(4))))
 
     @classmethod
-    def _shuffle(cls, tree):
+    def _shuffle(cls, tree, random_order=False):
         trees = [tree] * cls._ORDERS.shape[0]
         leaves = tree.get_leaves()
+        if random_order:
+            random.shuffle(leaves)
         sequences = numpy.asarray([leaf.sequence for leaf in leaves])
         sequences = sequences.view('S1').reshape(len(leaves), -1)
         sequences = sequences[cls._ORDERS, :]
         leaf_list = [[leaves[i] for i in order] for order in cls._ORDERS]
+        # print(len(trees), sequences.shape, cls._ORDERS.shape, len(leaf_list), sep='\n')
+        # 24, (24, 4, 869), (24, 4), 24
         return trees, sequences, cls._ORDERS, leaf_list
 
     @classmethod
@@ -240,7 +248,7 @@ class QuartetDataset(_QuartetMixin, torch.utils.data.Dataset):
     """A quartet tree dataset."""
 
 
-    def __init__(self, dataset):
+    def __init__(self, dataset, random_order=False):
         """Create a quartet tree dataset.
 
         Parameters
@@ -253,6 +261,7 @@ class QuartetDataset(_QuartetMixin, torch.utils.data.Dataset):
         if not isinstance(dataset, PickledDataset):
             dataset = PickledDataset(dataset)
         self.dataset = dataset
+        self.random_order = random_order
 
     def __len__(self):
         """Returns the size of the tree dataset.
@@ -286,8 +295,9 @@ class QuartetDataset(_QuartetMixin, torch.utils.data.Dataset):
         tree = self.dataset[index]
         if len(tree.children) == 2:
             tree.unroot()
-        trees, sequences, order, leaf_list = self._shuffle(tree)
-        return trees, sequences, order, self._generate_class_label(leaf_list)
+        trees, sequences, order, leaf_list = self._shuffle(tree, self.random_order)
+        leaf_names = tuple([x.name for x in leaf_list[0]])
+        return trees, sequences, order, self._generate_class_label(leaf_list), leaf_names
 
 
 class PreprunedQuartetDataset(_QuartetMixin, torch.utils.data.Dataset):

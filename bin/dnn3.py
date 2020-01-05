@@ -6,7 +6,7 @@
   and batch normalization.
 * Training data:
     * 100000 pre-simulated trees using training3.
-    * Each epoch uses randomly sampled 1000 trees.
+    * Each epoch uses randomly sampled 2000 trees.
     * The batch size is 16.
 * Validation data: 2000 pre-simulated trees using training3.
 * Optimizer: Adam with an initial learning rate of 0.001.
@@ -14,7 +14,9 @@
 
 import pathlib
 import pickle
+import random
 
+import ete3
 import fire
 import logbook
 import numpy
@@ -37,7 +39,7 @@ _BATCH_SIZE = 16
 _TRAINING_SIZE = 2000
 
 
-def train(warm_start=None, device='cuda', worker_count=6):
+def train(warm_start=None, device='cuda', worker_count=4):
     """Train a model.
 
     Parameters
@@ -70,7 +72,7 @@ def train(warm_start=None, device='cuda', worker_count=6):
             fast_model.train()
             sample_count, score = 0, 0.0
             optimizer.zero_grad()
-            for i, (_a, x, _b, y) in enumerate(training_data):
+            for i, (_a, x, _b, y, _c) in enumerate(training_data):
                 sample_count += x.size()[0]
                 x = x.to(device, non_blocking=True)
                 y = y.to(device, non_blocking=True)
@@ -83,8 +85,7 @@ def train(warm_start=None, device='cuda', worker_count=6):
             fast_model.eval()
             sample_count, score = 0, 0.0
             with torch.autograd.no_grad():
-                for __, x, __, y in validation_data:
-                    # y = torch.cat(y, dim=0)
+                for __, x, __, y, __ in validation_data:
                     sample_count += x.size()[0]
                     x = x.to(device, non_blocking=True)
                     y = y.to(device, non_blocking=True)
@@ -170,7 +171,7 @@ def _load_model(output_path, device, warm_start):
     return model, optimizer, score_records
 
 
-def predict(epoch, testing_dataset, output_path, device='cpu'):
+def predict(epoch, testing_dataset, output_path, device='cuda', random_order=False):
     """Apply a pre-trained model for prediction.
 
     Parameters
@@ -186,8 +187,9 @@ def predict(epoch, testing_dataset, output_path, device='cpu'):
     """
     model_path = _MODEL_PATH / pathlib.Path(__file__).stem / f'{epoch}.pickle'
     model = torch.load(model_path, map_location=torch.device(device))[0]
+    random.seed(4032)
     testing_data = torch.utils.data.DataLoader(
-        evosimz.QuartetDataset(testing_dataset),
+        evosimz.QuartetDataset(testing_dataset, random_order=random_order),
         num_workers=0,
         collate_fn=evosimz.Collator('amino acid'),
         pin_memory=True,
@@ -201,21 +203,30 @@ def predict(epoch, testing_dataset, output_path, device='cpu'):
         conformations = []
         results = []
         truths = []
-        for __, x, order, truth in testing_data:
+        leaf_names_list = []
+        tree_list = []
+        for __, x, order, truth, leaf_names in testing_data:
             x = x.to(device, non_blocking=True)
             order = order.to(device, non_blocking=True)
             score = evosimz.model.sort_quartet_scores(model(x), order)
-            individuals = score.argmax(dim=1).flatten()
-            major_vote = numpy.array([(individuals == x).sum() for x in range(3)]).argmax()
             mean_score = score.mean(dim=0).cpu().data.numpy()
-            # results.append(mean_score)
-            # conformations.append(mean_score.argmax())
+            prediction = mean_score.argmax()
+            if (mean_score == mean_score[prediction]).sum() > 1:
+                prediction = numpy.random.choice(numpy.where(mean_score == mean_score[prediction])[0])
+            conformations.append(prediction)
             results.append(score)
-            conformations.append(major_vote)
             truths.append(truth[0].cpu().data.numpy())
+            leaf_names = [x[0] for x in leaf_names]
+            leaf_names_list.append(leaf_names)
+            others = list(leaf_names[1:])
+            sister = others[prediction]
+            others.remove(sister)
+            tree_list.append(ete3.Tree(f'(({leaf_names[0]}, {sister}), {others[0]}, {others[1]});'))
         pickle.dump(results, (output_path / 'raw_results.pickle').open('wb'))
         pickle.dump(conformations, (output_path / 'results.pickle').open('wb'))
         pickle.dump(truths, (output_path / 'truths.pickle').open('wb'))
+        pickle.dump(leaf_names_list, (output_path / 'leaf_names.pickle').open('wb'))
+        pickle.dump(tree_list, (output_path / 'result_trees.pickle').open('wb'))
 
 
 def list_loss():

@@ -23,13 +23,17 @@ module are changed.
 
 ## Simulating trees
 
-Run `evosimz <simulator> <dataset name> <sample size> <job count>`.
+To simulate quartets (phylogenies with four taxa):
+
+Run `evosimz quartet <simulator> <dataset name> <sample size> <job count>`.
 
 `simulator` can be either the path to a pickled simulator or a simulator
-variable defined in `evosimz.simulators`.
+variable defined in any of the modules in `evosimz/simulators/`.
 
 `dataset name` will be the folder name. The generated sample folder will
 be placed under `data/trees`.
+
+Please refer to `data/scripts/bash_scripts/sim_train.sh` for example simulation commands.
 
 ## Training and prediction
 
@@ -41,3 +45,5 @@ example:
 `bin/q10 predict` lists all arguments for prediction.
 
 Models will be saved under `data/models/<script name>`.
+
+Please refer to `data/scripts/bash_scripts/sim_train.sh` for example training commands, and `data/scripts/bash_scripts/prediction.sh` for example prediction commands.

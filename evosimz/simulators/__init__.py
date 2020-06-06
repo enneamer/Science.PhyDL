@@ -8,12 +8,10 @@ import logbook
 from .training import *
 from .testing import *
 from .batchtesting import *
-from .batchtest_lbasb import *
 from .batchtest_bl50 import *
 from .. import tree
 
-__all__ = (training.__all__ + testing.__all__ + batchtesting.__all__ 
-           + batchtest_lbasb.__all__ + batchtest_bl50.__all__)
+__all__ = (training.__all__ + testing.__all__ + batchtesting.__all__ + batchtest_bl50.__all__)
 
 _LOG = logbook.Logger(__name__)
 

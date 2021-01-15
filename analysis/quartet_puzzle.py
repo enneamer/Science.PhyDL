@@ -14,7 +14,11 @@ trueq_dir = 'trueq'
 con_dir = 'consensus'
 true_treefile = 'tree.nw'
 nrep = 100
-
+paup_str = (f'set maxtrees=10001;\n'
+            f'execute ../DIR/all.nex;\n'
+            f'contree all /strict=no majrule=yes le50=yes treefile=DIR_maj.tre;\n'
+            f'quit;')
+next_ret = re.compile(r'tree\s+MajRule\s+=\s+\[\&R\]\s+(.+;)\n')
 
 def main():
     print('load data ...')

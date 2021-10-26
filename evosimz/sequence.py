@@ -345,7 +345,11 @@ class HeterogeneousBranchEvolutionSimulator(BaseEvolutionSimulator,
         path = pkg_resources.resource_filename(
             'evosimz', f'heterogeneity_profiles/{profile}',
         )
-        count_array = numpy.loadtxt(path) + 1
+        count_array = numpy.loadtxt(path)
+        if len(count_array.shape) == 1:
+            count_array = count_array.reshape(1, -1)
+        if count_array.max() > 1.0001:
+            count_array += 1
         profile = count_array / count_array.sum(axis=1, keepdims=True)
         sample = numpy.random.choice(profile.shape[0], site_count)
         profile = profile[sample]
@@ -580,7 +584,11 @@ class InheritableHeterogeneousBranchEvolutionSimulator(
         path = pkg_resources.resource_filename(
             'evosimz', f'heterogeneity_profiles/{profile}',
         )
-        count_array = numpy.loadtxt(path) + 1
+        count_array = numpy.loadtxt(path)
+        if len(count_array.shape) == 1:
+            count_array = count_array.reshape(1, -1)
+        if count_array.max() > 1.0001:
+            count_array += 1
         profile = count_array / count_array.sum(axis=1, keepdims=True)
         sample = numpy.random.choice(profile.shape[0], site_count)
         profile = profile[sample]

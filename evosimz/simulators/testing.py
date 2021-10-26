@@ -14,8 +14,87 @@ __all__ = [
     'testing3_nolba',
     'testing3_lba',
     'testtime_01',
+    'test0_lg',
+    'test0_wag',
+    'test0_mtinv',
+    'test0_flu',
 ]
 
+test0_lg = tree.QuartetTreeSubsampler(
+    base_simulator=tree.TreeSimulator(
+        taxon_count_model=scipy.stats.uniform(20, 21),
+        internal_branch_model=scipy.stats.uniform(0.1, 0.2),
+        external_branch_model=scipy.stats.uniform(0.1, 0.2),
+        sequence_simulator=sequence.HeterogeneousProteinSequenceSimulator(
+            site_count_range=(2000, 2001),
+            substitution_model='lg',
+            alpha_range=(1.5, 2),
+            profile='lg.freq',
+            profile_resampler=('dirichlet', 1000),
+            heterogeneous_branch_ratio=0.0,
+            rate_swap_ratio=0.0,
+            profile_swap_model=scipy.stats.randint(0, 1),
+        ),
+    ),
+    lba_ratio=0.0,
+)
+
+test0_wag = tree.QuartetTreeSubsampler(
+    base_simulator=tree.TreeSimulator(
+        taxon_count_model=scipy.stats.uniform(20, 21),
+        internal_branch_model=scipy.stats.uniform(0.1, 0.2),
+        external_branch_model=scipy.stats.uniform(0.1, 0.2),
+        sequence_simulator=sequence.HeterogeneousProteinSequenceSimulator(
+            site_count_range=(2000, 2001),
+            substitution_model='wag',
+            alpha_range=(1.5, 2),
+            profile='wag.freq',
+            profile_resampler=('dirichlet', 1000),
+            heterogeneous_branch_ratio=0.0,
+            rate_swap_ratio=0.0,
+            profile_swap_model=scipy.stats.randint(0, 1),
+        ),
+    ),
+    lba_ratio=0.0,
+)
+
+test0_mtinv = tree.QuartetTreeSubsampler(
+    base_simulator=tree.TreeSimulator(
+        taxon_count_model=scipy.stats.uniform(20, 21),
+        internal_branch_model=scipy.stats.uniform(0.1, 0.2),
+        external_branch_model=scipy.stats.uniform(0.1, 0.2),
+        sequence_simulator=sequence.HeterogeneousProteinSequenceSimulator(
+            site_count_range=(2000, 2001),
+            substitution_model='mtinv',
+            alpha_range=(1.5, 2),
+            profile='mtinv.freq',
+            profile_resampler=('dirichlet', 1000),
+            heterogeneous_branch_ratio=0.0,
+            rate_swap_ratio=0.0,
+            profile_swap_model=scipy.stats.randint(0, 1),
+        ),
+    ),
+    lba_ratio=0.0,
+)
+
+test0_flu = tree.QuartetTreeSubsampler(
+    base_simulator=tree.TreeSimulator(
+        taxon_count_model=scipy.stats.uniform(20, 21),
+        internal_branch_model=scipy.stats.uniform(0.1, 0.2),
+        external_branch_model=scipy.stats.uniform(0.1, 0.2),
+        sequence_simulator=sequence.HeterogeneousProteinSequenceSimulator(
+            site_count_range=(2000, 2001),
+            substitution_model='flu',
+            alpha_range=(1.5, 2),
+            profile='flu.freq',
+            profile_resampler=('dirichlet', 1000),
+            heterogeneous_branch_ratio=0.0,
+            rate_swap_ratio=0.0,
+            profile_swap_model=scipy.stats.randint(0, 1),
+        ),
+    ),
+    lba_ratio=0.0,
+)
 
 testing1_mixed = tree.QuartetTreeSubsampler(
     base_simulator=tree.TreeSimulator(

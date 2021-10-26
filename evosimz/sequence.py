@@ -134,7 +134,7 @@ class BaseEvolutionSimulator(metaclass=abc.ABCMeta):
         """
         q = r * equilibrium_frequencies
         numpy.fill_diagonal(q, 0)
-        numpy.fill_diagonal(q, -q.sum(axis=0))
+        numpy.fill_diagonal(q, -q.sum(axis=1))
         q /= numpy.abs((equilibrium_frequencies * numpy.diag(q)).sum())
         return q
 
@@ -308,7 +308,7 @@ class HeterogeneousBranchEvolutionSimulator(BaseEvolutionSimulator,
             site_count, equilibrium_frequencies=equilibrium_frequencies,
             profile=self.profile, resampler=self.profile_resampler,
         )
-        rates = numpy.random.gamma(alpha, alpha, size=site_count)
+        rates = numpy.random.gamma(alpha, 1 / alpha, size=site_count)
         heterogeneous_branch_ratio = self.heterogeneous_branch_ratio
         if heterogeneous_branch_ratio == 'random':
             heterogeneous_branch_ratio = random.random()
@@ -423,12 +423,12 @@ class HeterogeneousBranchEvolutionSimulator(BaseEvolutionSimulator,
         q_diag = q.sum(axis=2) - q[:, indices, indices]
         jump = q / q_diag[..., None]
         jump[:, indices, indices] = 0
-        t[mask] -= numpy.random.exponential(q_diag[mask, sequence[mask]])
+        t[mask] -= numpy.random.exponential(numpy.reciprocal(q_diag[mask, sequence[mask]]))
         mask = t > 0
         mask_count = mask.sum()
         while mask_count > 0:
             sequence[mask] = _sample_sequence(jump[mask, sequence[mask]])
-            t[mask] -= numpy.random.exponential(q_diag[mask, sequence[mask]])
+            t[mask] -= numpy.random.exponential(numpy.reciprocal(q_diag[mask, sequence[mask]]))
             mask = t > 0
             mask_count = mask.sum()
         node.add_feature('sequence', sequence)
@@ -543,7 +543,7 @@ class InheritableHeterogeneousBranchEvolutionSimulator(
             site_count, equilibrium_frequencies=equilibrium_frequencies,
             profile=self.profile, resampler=self.profile_resampler,
         )
-        rates = numpy.random.gamma(alpha, alpha, size=site_count)
+        rates = numpy.random.gamma(alpha, 1 / alpha, size=site_count)
         heterogeneous_branch_ratio = self.heterogeneous_branch_ratio
         if heterogeneous_branch_ratio == 'random':
             heterogeneous_branch_ratio = random.random()
@@ -661,15 +661,19 @@ class InheritableHeterogeneousBranchEvolutionSimulator(
         node.add_feature('profile', profile)
         indices = numpy.arange(profile.shape[1])
         q = parameters['r'] * profile[:, None, :]
+        q_diag = q[:, indices, indices] - q.sum(axis=2)
+        q[:, indices, indices] = q_diag
+        scale_f = - (q_diag * node.pi).sum(axis=-1)
+        q = q / scale_f[:, None, None]
         q_diag = q.sum(axis=2) - q[:, indices, indices]
         jump = q / q_diag[..., None]
         jump[:, indices, indices] = 0
-        t[mask] -= numpy.random.exponential(q_diag[mask, sequence[mask]])
+        t[mask] -= numpy.random.exponential(numpy.reciprocal(q_diag[mask, sequence[mask]]))
         mask = t > 0
         mask_count = mask.sum()
         while mask_count > 0:
             sequence[mask] = _sample_sequence(jump[mask, sequence[mask]])
-            t[mask] -= numpy.random.exponential(q_diag[mask, sequence[mask]])
+            t[mask] -= numpy.random.exponential(numpy.reciprocal(q_diag[mask, sequence[mask]]))
             mask = t > 0
             mask_count = mask.sum()
         node.add_feature('sequence', sequence)

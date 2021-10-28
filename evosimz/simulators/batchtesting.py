@@ -20,6 +20,11 @@ __all__ = [
     'test_heterotachy_02',
     'test_heterotachy_03',
     'test_heterotachy_04',
+    'test_heterogeneity_00',
+    'test_heterogeneity_01',
+    'test_heterogeneity_02',
+    'test_heterogeneity_03',
+    'test_heterogeneity_04',
 ]
 
 
@@ -328,6 +333,102 @@ test_heterotachy_04 = tree.QuartetTreeSubsampler(
             heterogeneous_branch_ratio=1.0,
             rate_swap_ratio=1.0,
             profile_swap_model=scipy.stats.randint(0, 1),
+        ),
+    ),
+    lba_ratio=0.0,
+)
+# Heterogeneity --------------------------------------------
+
+test_heterogeneity_00 = tree.QuartetTreeSubsampler(
+    base_simulator=tree.TreeSimulator(
+        taxon_count_model=scipy.stats.uniform(20, 1),
+        internal_branch_model=scipy.stats.uniform(0.02, 1),
+        external_branch_model=scipy.stats.uniform(0.02, 1),
+        sequence_simulator=sequence.HeterogeneousProteinSequenceSimulator(
+            site_count_range=(1000, 1001),
+            substitution_model='random',
+            alpha_range=(0.05, 1),
+            profile='all.freq',
+            profile_resampler=('dirichlet', 10),
+            heterogeneous_branch_ratio=0.0,
+            rate_swap_ratio=0.5,
+            profile_swap_model=scipy.stats.randint(0, 20),
+        ),
+    ),
+    lba_ratio=0.0,
+)
+
+test_heterogeneity_01 = tree.QuartetTreeSubsampler(
+    base_simulator=tree.TreeSimulator(
+        taxon_count_model=scipy.stats.uniform(20, 1),
+        internal_branch_model=scipy.stats.uniform(0.02, 1),
+        external_branch_model=scipy.stats.uniform(0.02, 1),
+        sequence_simulator=sequence.HeterogeneousProteinSequenceSimulator(
+            site_count_range=(1000, 1001),
+            substitution_model='random',
+            alpha_range=(0.05, 1),
+            profile='all.freq',
+            profile_resampler=('dirichlet', 10),
+            heterogeneous_branch_ratio=0.25,
+            rate_swap_ratio=0.5,
+            profile_swap_model=scipy.stats.randint(0, 20),
+        ),
+    ),
+    lba_ratio=0.0,
+)
+
+test_heterogeneity_02 = tree.QuartetTreeSubsampler(
+    base_simulator=tree.TreeSimulator(
+        taxon_count_model=scipy.stats.uniform(20, 1),
+        internal_branch_model=scipy.stats.uniform(0.02, 1),
+        external_branch_model=scipy.stats.uniform(0.02, 1),
+        sequence_simulator=sequence.HeterogeneousProteinSequenceSimulator(
+            site_count_range=(1000, 1001),
+            substitution_model='random',
+            alpha_range=(0.05, 1),
+            profile='all.freq',
+            profile_resampler=('dirichlet', 10),
+            heterogeneous_branch_ratio=0.5,
+            rate_swap_ratio=0.5,
+            profile_swap_model=scipy.stats.randint(0, 20),
+        ),
+    ),
+    lba_ratio=0.0,
+)
+
+test_heterogeneity_03 = tree.QuartetTreeSubsampler(
+    base_simulator=tree.TreeSimulator(
+        taxon_count_model=scipy.stats.uniform(20, 1),
+        internal_branch_model=scipy.stats.uniform(0.02, 1),
+        external_branch_model=scipy.stats.uniform(0.02, 1),
+        sequence_simulator=sequence.HeterogeneousProteinSequenceSimulator(
+            site_count_range=(1000, 1001),
+            substitution_model='random',
+            alpha_range=(0.05, 1),
+            profile='all.freq',
+            profile_resampler=('dirichlet', 10),
+            heterogeneous_branch_ratio=0.75,
+            rate_swap_ratio=0.5,
+            profile_swap_model=scipy.stats.randint(0, 20),
+        ),
+    ),
+    lba_ratio=0.0,
+)
+
+test_heterogeneity_04 = tree.QuartetTreeSubsampler(
+    base_simulator=tree.TreeSimulator(
+        taxon_count_model=scipy.stats.uniform(20, 1),
+        internal_branch_model=scipy.stats.uniform(0.02, 1),
+        external_branch_model=scipy.stats.uniform(0.02, 1),
+        sequence_simulator=sequence.HeterogeneousProteinSequenceSimulator(
+            site_count_range=(1000, 1001),
+            substitution_model='random',
+            alpha_range=(0.05, 1),
+            profile='all.freq',
+            profile_resampler=('dirichlet', 10),
+            heterogeneous_branch_ratio=1.0,
+            rate_swap_ratio=0.5,
+            profile_swap_model=scipy.stats.randint(0, 20),
         ),
     ),
     lba_ratio=0.0,

@@ -424,6 +424,10 @@ class HeterogeneousBranchEvolutionSimulator(BaseEvolutionSimulator,
         )
         indices = numpy.arange(profile.shape[1])
         q = parameters['r'] * profile[:, None, :]
+        q_diag = q[:, indices, indices] - q.sum(axis=2)
+        q[:, indices, indices] = q_diag
+        scale_f = - (q_diag * profile).sum(axis=-1)
+        q = q / scale_f[:, None, None]
         q_diag = q.sum(axis=2) - q[:, indices, indices]
         jump = q / q_diag[..., None]
         jump[:, indices, indices] = 0
@@ -671,7 +675,7 @@ class InheritableHeterogeneousBranchEvolutionSimulator(
         q = parameters['r'] * profile[:, None, :]
         q_diag = q[:, indices, indices] - q.sum(axis=2)
         q[:, indices, indices] = q_diag
-        scale_f = - (q_diag * node.pi).sum(axis=-1)
+        scale_f = - (q_diag * profile).sum(axis=-1)
         q = q / scale_f[:, None, None]
         q_diag = q.sum(axis=2) - q[:, indices, indices]
         jump = q / q_diag[..., None]

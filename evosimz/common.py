@@ -12,6 +12,7 @@ __all__ = (
     'iterate_fasta',
     'repeated_swap',
     'sample_sites',
+    'unrootz',
 )
 
 ETE_FORMAT = 3
@@ -101,3 +102,32 @@ def sample_sites(sequence, length=None):
         length = sequence.shape[-1]
     site_indices = numpy.random.randint(sequence.shape[-1], size=length)
     return sequence[..., site_indices]
+
+
+def unrootz(tree):
+    """Unroot a tree in place.
+
+    Parameters
+    ----------
+    tree : ete3.TreeNode
+        The tree as ete3 TreeNode object.
+
+    Returns
+    -------
+    """
+    if len(tree.children) > 2:
+        return
+    if not tree.children[0].is_leaf():
+        idx = 0
+        idy = 1
+    elif not tree.children[1].is_leaf():
+        idx = 1
+        idy = 0
+    else:
+        return
+    new_children = tree.children[idx].children
+    tree.children[idy].dist += tree.children[idx].dist
+    __ = tree.children[idx].detach()
+    for child in new_children:
+        tree.add_child(child)
+    return

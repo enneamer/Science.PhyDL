@@ -6,6 +6,7 @@ import random
 import ete3
 
 from . import sequence
+from . import common
 
 __all__ = [
     'BaseTreeSimulator',
@@ -91,7 +92,10 @@ class TreeSimulator(BaseTreeSimulator):
                 current_leaf_index += 1
             else:
                 node.name = f"node{current_internal_index:d}"
-                node.dist = self.internal_branch_model.rvs()
+                if node.is_root():
+                    node.dist = 0.0
+                else:
+                    node.dist = self.internal_branch_model.rvs()
                 current_internal_index += 1
         return tree
 
@@ -147,7 +151,7 @@ class QuartetTreeSubsampler(BaseTreeSimulator):
             leaves = random.sample(tree.get_leaves(), 4)
         self.base_simulator.assign_sequences(tree, leaves=leaves)
         tree.prune(leaves, preserve_branch_length=True)
-        tree.unroot()
+        common.unrootz(tree)
         return tree
 
     @classmethod
@@ -230,7 +234,7 @@ class QuartetTreeSubsampler(BaseTreeSimulator):
             nodes = random.sample(leaves, 4)
             subtree = tree.copy('newick')
             subtree.prune(nodes, preserve_branch_length=True)
-            subtree.unroot()
+            common.unrootz(subtree)
             branch_length_ratio = cls.calculate_branch_length_ratio(subtree)
             pruned.append((branch_length_ratio, nodes))
         pruned.sort()

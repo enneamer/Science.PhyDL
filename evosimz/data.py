@@ -294,7 +294,7 @@ class QuartetDataset(_QuartetMixin, torch.utils.data.Dataset):
         """
         tree = self.dataset[index]
         if len(tree.children) == 2:
-            tree.unroot()
+            common.unrootz(tree)
         trees, sequences, order, leaf_list = self._shuffle(tree, self.random_order)
         leaf_names = tuple([x.name for x in leaf_list[0]])
         return trees, sequences, order, self._generate_class_label(leaf_list), leaf_names
@@ -351,7 +351,7 @@ class PreprunedQuartetDataset(_QuartetMixin, torch.utils.data.Dataset):
         sample_index = bisect.bisect_left([ratio for ratio, __ in prepruned],
                                           branch_length_ratio)
         tree.prune(prepruned[sample_index][1], preserve_branch_length=True)
-        tree.unroot()
+        common.unrootz(tree)
         trees, sequences, order, leaf_list = self._shuffle(tree)
         return trees, sequences, order, self._generate_class_label(y)
 
@@ -437,7 +437,7 @@ class PreprunedAdjacencyDataset(_AdjacencyMixin, torch.utils.data.Dataset):
         sample_index = bisect.bisect_left([ratio for ratio, __ in prepruned],
                                           branch_length_ratio)
         tree.prune(prepruned[sample_index][1], preserve_branch_length=True)
-        tree.unroot()
+        common.unrootz(tree)
         sequences = numpy.array([leaf.sequence for leaf in tree.get_leaves()])
         sequences = sequences.view('S1').reshape(len(sequences), -1)
         adjacency_matrix = self._get_adjacency_matrix(tree)
@@ -503,7 +503,7 @@ class PreprunedQuartetAdjacencyDataset(_QuartetMixin, _AdjacencyMixin,
         sample_index = bisect.bisect_left([ratio for ratio, __ in prepruned],
                                           branch_length_ratio)
         tree.prune(prepruned[sample_index][1], preserve_branch_length=True)
-        tree.unroot()
+        common.unrootz(tree)
         trees, sequences, order, __ = self._shuffle(tree)
         adjacency_matrix = self._get_adjacency_matrix(tree)
         adjacency_matrices = numpy.stack([
